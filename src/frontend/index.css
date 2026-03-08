@@ -1,0 +1,220 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================
+   FONT FACES
+   ============================================ */
+
+@font-face {
+  font-family: "Bricolage Grotesque";
+  src: url("/assets/fonts/BricolageGrotesque.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Playfair Display";
+  src: url("/assets/fonts/PlayfairDisplay.woff2") format("woff2");
+  font-weight: 400 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "General Sans";
+  src: url("/assets/fonts/GeneralSans.woff2") format("woff2");
+  font-weight: 200 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ============================================
+   DESIGN TOKENS — VELMORA DARK LUXURY
+   ============================================ */
+
+@layer base {
+  :root {
+    --radius: 0.25rem;
+
+    /* Core palette — dark luxury with gold accents */
+    --background: 0.1 0.005 90;
+    --foreground: 0.95 0.01 90;
+
+    --card: 0.13 0.006 90;
+    --card-foreground: 0.95 0.01 90;
+
+    --popover: 0.15 0.007 90;
+    --popover-foreground: 0.95 0.01 90;
+
+    /* Gold/Amber primary */
+    --primary: 0.78 0.15 80;
+    --primary-foreground: 0.1 0.005 90;
+
+    /* Charcoal secondary */
+    --secondary: 0.2 0.007 90;
+    --secondary-foreground: 0.85 0.01 90;
+
+    --muted: 0.18 0.006 90;
+    --muted-foreground: 0.55 0.01 90;
+
+    /* Gold accent */
+    --accent: 0.75 0.14 78;
+    --accent-foreground: 0.1 0.005 90;
+
+    --destructive: 0.577 0.245 27.325;
+    --destructive-foreground: 0.985 0 0;
+
+    --border: 0.25 0.008 90;
+    --input: 0.22 0.007 90;
+    --ring: 0.78 0.15 80;
+
+    /* Chart colors */
+    --chart-1: 0.78 0.15 80;
+    --chart-2: 0.6 0.118 184.704;
+    --chart-3: 0.398 0.07 227.392;
+    --chart-4: 0.828 0.189 84.429;
+    --chart-5: 0.769 0.188 70.08;
+
+    /* Sidebar */
+    --sidebar: 0.12 0.006 90;
+    --sidebar-foreground: 0.95 0.01 90;
+    --sidebar-primary: 0.78 0.15 80;
+    --sidebar-primary-foreground: 0.1 0.005 90;
+    --sidebar-accent: 0.2 0.007 90;
+    --sidebar-accent-foreground: 0.85 0.01 90;
+    --sidebar-border: 0.25 0.008 90;
+    --sidebar-ring: 0.78 0.15 80;
+
+    /* Custom Velmora tokens */
+    --gold: 0.78 0.15 80;
+    --gold-muted: 0.65 0.11 78;
+    --gold-dim: 0.45 0.08 75;
+    --charcoal-deep: 0.08 0.005 90;
+    --charcoal-mid: 0.14 0.006 90;
+    --charcoal-light: 0.22 0.008 90;
+    --text-primary: 0.95 0.01 90;
+    --text-muted: 0.55 0.01 90;
+    --text-subtle: 0.38 0.009 90;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    color-scheme: dark;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: "General Sans", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/* ============================================
+   TYPOGRAPHY UTILITIES
+   ============================================ */
+
+@layer utilities {
+  .font-display {
+    font-family: "Bricolage Grotesque", sans-serif;
+  }
+
+  .font-serif {
+    font-family: "Playfair Display", serif;
+  }
+
+  .font-body {
+    font-family: "General Sans", sans-serif;
+  }
+
+  .text-gold {
+    color: oklch(var(--gold));
+  }
+
+  .text-gold-muted {
+    color: oklch(var(--gold-muted));
+  }
+
+  .bg-charcoal-deep {
+    background-color: oklch(var(--charcoal-deep));
+  }
+
+  .bg-charcoal-mid {
+    background-color: oklch(var(--charcoal-mid));
+  }
+
+  .border-gold {
+    border-color: oklch(var(--gold));
+  }
+
+  .border-gold-dim {
+    border-color: oklch(var(--gold-dim));
+  }
+
+  /* Gold gradient text */
+  .text-gradient-gold {
+    background: linear-gradient(
+      135deg,
+      oklch(0.88 0.12 85) 0%,
+      oklch(0.78 0.15 80) 40%,
+      oklch(0.65 0.11 75) 100%
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Subtle noise texture overlay */
+  .noise-overlay {
+    position: relative;
+  }
+  .noise-overlay::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  /* Product card hover glow */
+  .card-glow:hover {
+    box-shadow:
+      0 0 30px oklch(0.78 0.15 80 / 0.15),
+      0 20px 60px oklch(0 0 0 / 0.5);
+  }
+
+  /* Gold button glow */
+  .btn-gold-glow:hover {
+    box-shadow: 0 0 20px oklch(0.78 0.15 80 / 0.4);
+  }
+
+  /* Letter spacing wide */
+  .tracking-widest-plus {
+    letter-spacing: 0.3em;
+  }
+}
+
+/* ============================================
+   SCROLLBAR STYLING
+   ============================================ */
+
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: oklch(0.1 0.005 90);
+}
+::-webkit-scrollbar-thumb {
+  background: oklch(0.3 0.009 90);
+  border-radius: 2px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: oklch(0.55 0.1 80);
+}
