@@ -14,6 +14,20 @@ export type Category = { 'Jackets' : null } |
   { 'Accessories' : null } |
   { 'Hoodies' : null } |
   { 'Trousers' : null };
+export interface Order {
+  'id' : bigint,
+  'createdAt' : bigint,
+  'totalAmount' : bigint,
+  'shippingAddress' : ShippingAddress,
+  'items' : Array<OrderItem>,
+  'customerEmail' : string,
+}
+export interface OrderItem {
+  'productId' : bigint,
+  'productName' : string,
+  'quantity' : bigint,
+  'unitPrice' : bigint,
+}
 export interface Product {
   'id' : bigint,
   'name' : string,
@@ -22,11 +36,27 @@ export interface Product {
   'category' : Category,
   'price' : bigint,
 }
+export interface ShippingAddress {
+  'country' : string,
+  'city' : string,
+  'postalCode' : string,
+  'state' : string,
+  'addressLine1' : string,
+  'addressLine2' : [] | [string],
+  'lastName' : string,
+  'firstName' : string,
+}
 export interface _SERVICE {
+  'getAllOrders' : ActorMethod<[], Array<Order>>,
   'getAllProducts' : ActorMethod<[], Array<Product>>,
   'getFeaturedProducts' : ActorMethod<[], Array<Product>>,
+  'getOrder' : ActorMethod<[bigint], [] | [Order]>,
   'getProductsByCategory' : ActorMethod<[Category], Array<Product>>,
   'getSubscriberCount' : ActorMethod<[], bigint>,
+  'placeOrder' : ActorMethod<
+    [string, Array<OrderItem>, ShippingAddress],
+    bigint
+  >,
   'subscribe' : ActorMethod<[string], undefined>,
 }
 export declare const idlService: IDL.ServiceClass;

@@ -3,7 +3,11 @@ import Map "mo:core/Map";
 import Text "mo:core/Text";
 import Order "mo:core/Order";
 import Runtime "mo:core/Runtime";
+import Time "mo:core/Time";
+import Iter "mo:core/Iter";
+import Migration "migration";
 
+(with migration = Migration.run)
 actor {
   type Category = {
     #Hoodies;
@@ -97,6 +101,37 @@ actor {
   // Newsletter
   let subscribers = Map.empty<Text, ()>();
 
+  // Orders
+  type OrderItem = {
+    productId : Nat;
+    productName : Text;
+    quantity : Nat;
+    unitPrice : Nat;
+  };
+
+  type ShippingAddress = {
+    firstName : Text;
+    lastName : Text;
+    addressLine1 : Text;
+    addressLine2 : ?Text;
+    city : Text;
+    state : Text;
+    postalCode : Text;
+    country : Text;
+  };
+
+  type Order = {
+    id : Nat;
+    customerEmail : Text;
+    items : [OrderItem];
+    shippingAddress : ShippingAddress;
+    totalAmount : Nat;
+    createdAt : Int;
+  };
+
+  let orders = Map.empty<Nat, Order>();
+  var nextOrderId = 1;
+
   // Product Queries
   public query ({ caller }) func getAllProducts() : async [Product] {
     products.toArray().sort();
@@ -124,4 +159,48 @@ actor {
   public query ({ caller }) func getSubscriberCount() : async Nat {
     subscribers.size();
   };
+
+  // Order Management
+  public shared ({ caller }) func placeOrder(customerEmail : Text, items : [OrderItem], shippingAddress : ShippingAddress) : async Nat {
+    if (customerEmail.size() < 3 or not customerEmail.contains(#char '@')) {
+      Runtime.trap("Invalid email address");
+    };
+
+    if (items.size() == 0) {
+      Runtime.trap("Order must contain at least one item");
+    };
+
+    let totalAmount = items.foldLeft(
+      0,
+      func(acc, item) { acc + (item.unitPrice * item.quantity) },
+    );
+
+    if (totalAmount == 0) {
+      Runtime.trap("Total amount cannot be zero");
+    };
+
+    let orderId = nextOrderId;
+    nextOrderId += 1;
+
+    let order : Order = {
+      id = orderId;
+      customerEmail;
+      items;
+      shippingAddress;
+      totalAmount;
+      createdAt = Time.now();
+    };
+
+    orders.add(orderId, order);
+    orderId;
+  };
+
+  public query ({ caller }) func getOrder(orderId : Nat) : async ?Order {
+    orders.get(orderId);
+  };
+
+  public query ({ caller }) func getAllOrders() : async [Order] {
+    orders.values().toArray();
+  };
 };
+

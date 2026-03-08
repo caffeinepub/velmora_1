@@ -8,6 +8,30 @@
 
 import { IDL } from '@icp-sdk/core/candid';
 
+export const ShippingAddress = IDL.Record({
+  'country' : IDL.Text,
+  'city' : IDL.Text,
+  'postalCode' : IDL.Text,
+  'state' : IDL.Text,
+  'addressLine1' : IDL.Text,
+  'addressLine2' : IDL.Opt(IDL.Text),
+  'lastName' : IDL.Text,
+  'firstName' : IDL.Text,
+});
+export const OrderItem = IDL.Record({
+  'productId' : IDL.Nat,
+  'productName' : IDL.Text,
+  'quantity' : IDL.Nat,
+  'unitPrice' : IDL.Nat,
+});
+export const Order = IDL.Record({
+  'id' : IDL.Nat,
+  'createdAt' : IDL.Int,
+  'totalAmount' : IDL.Nat,
+  'shippingAddress' : ShippingAddress,
+  'items' : IDL.Vec(OrderItem),
+  'customerEmail' : IDL.Text,
+});
 export const Category = IDL.Variant({
   'Jackets' : IDL.Null,
   'Accessories' : IDL.Null,
@@ -24,16 +48,47 @@ export const Product = IDL.Record({
 });
 
 export const idlService = IDL.Service({
+  'getAllOrders' : IDL.Func([], [IDL.Vec(Order)], ['query']),
   'getAllProducts' : IDL.Func([], [IDL.Vec(Product)], ['query']),
   'getFeaturedProducts' : IDL.Func([], [IDL.Vec(Product)], ['query']),
+  'getOrder' : IDL.Func([IDL.Nat], [IDL.Opt(Order)], ['query']),
   'getProductsByCategory' : IDL.Func([Category], [IDL.Vec(Product)], ['query']),
   'getSubscriberCount' : IDL.Func([], [IDL.Nat], ['query']),
+  'placeOrder' : IDL.Func(
+      [IDL.Text, IDL.Vec(OrderItem), ShippingAddress],
+      [IDL.Nat],
+      [],
+    ),
   'subscribe' : IDL.Func([IDL.Text], [], []),
 });
 
 export const idlInitArgs = [];
 
 export const idlFactory = ({ IDL }) => {
+  const ShippingAddress = IDL.Record({
+    'country' : IDL.Text,
+    'city' : IDL.Text,
+    'postalCode' : IDL.Text,
+    'state' : IDL.Text,
+    'addressLine1' : IDL.Text,
+    'addressLine2' : IDL.Opt(IDL.Text),
+    'lastName' : IDL.Text,
+    'firstName' : IDL.Text,
+  });
+  const OrderItem = IDL.Record({
+    'productId' : IDL.Nat,
+    'productName' : IDL.Text,
+    'quantity' : IDL.Nat,
+    'unitPrice' : IDL.Nat,
+  });
+  const Order = IDL.Record({
+    'id' : IDL.Nat,
+    'createdAt' : IDL.Int,
+    'totalAmount' : IDL.Nat,
+    'shippingAddress' : ShippingAddress,
+    'items' : IDL.Vec(OrderItem),
+    'customerEmail' : IDL.Text,
+  });
   const Category = IDL.Variant({
     'Jackets' : IDL.Null,
     'Accessories' : IDL.Null,
@@ -50,14 +105,21 @@ export const idlFactory = ({ IDL }) => {
   });
   
   return IDL.Service({
+    'getAllOrders' : IDL.Func([], [IDL.Vec(Order)], ['query']),
     'getAllProducts' : IDL.Func([], [IDL.Vec(Product)], ['query']),
     'getFeaturedProducts' : IDL.Func([], [IDL.Vec(Product)], ['query']),
+    'getOrder' : IDL.Func([IDL.Nat], [IDL.Opt(Order)], ['query']),
     'getProductsByCategory' : IDL.Func(
         [Category],
         [IDL.Vec(Product)],
         ['query'],
       ),
     'getSubscriberCount' : IDL.Func([], [IDL.Nat], ['query']),
+    'placeOrder' : IDL.Func(
+        [IDL.Text, IDL.Vec(OrderItem), ShippingAddress],
+        [IDL.Nat],
+        [],
+      ),
     'subscribe' : IDL.Func([IDL.Text], [], []),
   });
 };

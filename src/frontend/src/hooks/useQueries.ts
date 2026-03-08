@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import type { Category } from "../backend.d";
+import type { Category, OrderItem, ShippingAddress } from "../backend.d";
 import { useActor } from "./useActor";
 
 export function useGetFeaturedProducts() {
@@ -45,6 +45,24 @@ export function useSubscribe() {
     mutationFn: async (email: string) => {
       if (!actor) throw new Error("Actor not ready");
       return actor.subscribe(email);
+    },
+  });
+}
+
+export function usePlaceOrder() {
+  const { actor } = useActor();
+  return useMutation({
+    mutationFn: async ({
+      customerEmail,
+      items,
+      shippingAddress,
+    }: {
+      customerEmail: string;
+      items: Array<OrderItem>;
+      shippingAddress: ShippingAddress;
+    }) => {
+      if (!actor) throw new Error("Actor not ready");
+      return actor.placeOrder(customerEmail, items, shippingAddress);
     },
   });
 }

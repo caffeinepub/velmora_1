@@ -12,6 +12,7 @@ import {
   Loader2,
   Menu,
   ShoppingBag,
+  ShoppingCart,
   Twitter,
   X,
 } from "lucide-react";
@@ -20,6 +21,9 @@ import { useEffect, useRef, useState } from "react";
 import { SiX } from "react-icons/si";
 import { toast } from "sonner";
 import { Category, type Product } from "./backend.d";
+import { CartDrawer } from "./components/CartDrawer";
+import { CheckoutModal } from "./components/CheckoutModal";
+import { CartProvider, useCart } from "./context/CartContext";
 import {
   useGetFeaturedProducts,
   useGetProductsByCategory,
@@ -136,6 +140,15 @@ interface ProductCardProps {
 
 function ProductCard({ product, index }: ProductCardProps) {
   const imgSrc = CATEGORY_IMAGES[product.category] ?? CATEGORY_IMAGES.Hoodies;
+  const { addToCart } = useCart();
+
+  const handleAddToCart = () => {
+    addToCart(product);
+    toast.success(`${product.name} added to cart`, {
+      description: formatPrice(product.price),
+      duration: 2500,
+    });
+  };
 
   return (
     <motion.div
@@ -187,6 +200,7 @@ function ProductCard({ product, index }: ProductCardProps) {
           <Button
             data-ocid={`product.button.${index + 1}`}
             size="sm"
+            onClick={handleAddToCart}
             className="bg-transparent border border-gold/40 text-gold hover:bg-gold hover:text-charcoal-deep transition-all duration-300 text-xs tracking-widest uppercase font-body btn-gold-glow rounded-none"
           >
             <ShoppingBag className="mr-1.5 h-3.5 w-3.5" />
@@ -223,9 +237,14 @@ function ProductSkeleton() {
    NAVBAR
    ============================================ */
 
-function Navbar() {
+interface NavbarProps {
+  onCartOpen: () => void;
+}
+
+function Navbar({ onCartOpen }: NavbarProps) {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const { totalItems } = useCart();
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 60);
@@ -278,8 +297,32 @@ function Navbar() {
             ))}
           </ul>
 
-          {/* CTA + Mobile toggle */}
-          <div className="flex items-center gap-4">
+          {/* CTA + Cart + Mobile toggle */}
+          <div className="flex items-center gap-3">
+            {/* Cart icon */}
+            <button
+              type="button"
+              data-ocid="nav.cart_button"
+              onClick={onCartOpen}
+              aria-label="Open cart"
+              className="relative p-2 text-muted-foreground hover:text-gold transition-colors duration-300"
+            >
+              <ShoppingCart className="h-5 w-5" />
+              <AnimatePresence>
+                {totalItems > 0 && (
+                  <motion.span
+                    key="badge"
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    exit={{ scale: 0 }}
+                    className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] bg-gold text-charcoal-deep text-[9px] font-display font-black rounded-full flex items-center justify-center px-1 leading-none"
+                  >
+                    {totalItems > 99 ? "99+" : totalItems}
+                  </motion.span>
+                )}
+              </AnimatePresence>
+            </button>
+
             <Button
               data-ocid="nav.shop_button"
               onClick={() => scrollToSection("#collection")}
@@ -954,14 +997,21 @@ function Footer() {
 }
 
 /* ============================================
-   APP ROOT
+   APP SHELL (uses CartProvider)
    ============================================ */
 
-export default function App() {
+function AppShell() {
+  const [cartOpen, setCartOpen] = useState(false);
+  const [checkoutOpen, setCheckoutOpen] = useState(false);
+
+  const handleCheckout = () => {
+    setCheckoutOpen(true);
+  };
+
   return (
     <div className="min-h-screen bg-background text-foreground dark">
-      <Toaster theme="dark" />
-      <Navbar />
+      <Toaster theme="dark" position="top-right" />
+      <Navbar onCartOpen={() => setCartOpen(true)} />
       <main>
         <HeroSection />
         <FeaturedSection />
@@ -970,6 +1020,31 @@ export default function App() {
         <NewsletterSection />
       </main>
       <Footer />
+
+      {/* Cart Drawer */}
+      <CartDrawer
+        open={cartOpen}
+        onOpenChange={setCartOpen}
+        onCheckout={handleCheckout}
+      />
+
+      {/* Checkout Modal */}
+      <CheckoutModal
+        open={checkoutOpen}
+        onClose={() => setCheckoutOpen(false)}
+      />
     </div>
+  );
+}
+
+/* ============================================
+   APP ROOT
+   ============================================ */
+
+export default function App() {
+  return (
+    <CartProvider>
+      <AppShell />
+    </CartProvider>
   );
 }
